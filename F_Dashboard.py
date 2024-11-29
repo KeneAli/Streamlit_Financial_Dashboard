@@ -164,7 +164,7 @@ if st.session_state.stock_data is not None:
                     yf_period = period_dict.get(period, '1d')
                     hist = stock_data.history(period=yf_period)         #downloding the necessary data
                     fig = go.Figure(data=[go.Scatter(x=hist.index, y=hist['Close'], mode='lines', fill='tozeroy', line=dict(color='green'), fillcolor='rgba(0, 128, 0, 0.3)', name='Close')])       #Displaying the chart       
-                    fig.update_layout(title=f"Price of {st.session_state.selected_ticker} on {period}", xaxis_title="Date", yaxis_title="Prix (USD)")
+                    fig.update_layout(title=f"Price of {st.session_state.selected_ticker} on {period}", xaxis_title="Date", yaxis_title="Price (USD)")
                     st.plotly_chart(fig, use_container_width=True)
 
         st.markdown("<hr>", unsafe_allow_html=True)             #Outside any column of the menu page : the description information from the selected ticker.
