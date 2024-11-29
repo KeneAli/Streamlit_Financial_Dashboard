@@ -8,6 +8,29 @@ import pandas as pd
 
 st.set_page_config(layout="wide", page_title="Stock Analysis Dashboard", page_icon="📈")
 
+# Background color customization
+st.markdown(
+    """
+    <style>
+    .main {
+        background-color: #F8F9FA; /* Off-white background */
+    }
+    .stButton>button {
+        background-color: #007BFF; /* Button blue color */
+        color: white;
+        border-radius: 8px;
+        padding: 8px 20px;
+        font-size: 14px;
+    }
+    .stButton>button:hover {
+        background-color: #0056b3; /* Darker blue on hover */
+        color: white;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 st.title("📈 Stock Analysis Dashboard")
 # Initialize session state variables
 if 'menu' not in st.session_state:
@@ -26,13 +49,13 @@ if 'period_type' not in st.session_state:
 def list_wikipedia_sp500() -> pd.DataFrame:
     url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
     sp500_table = pd.read_html(url)[0]
-    sp500_table.set_index('Symbol', inplace=True)  # Utiliser les tickers comme index
+    sp500_table.set_index('Symbol', inplace=True)  
     return sp500_table
 
 # Load tickers
 if 'ticker_list' not in st.session_state:
     df_ticker = list_wikipedia_sp500()
-    st.session_state.ticker_list = sorted(df_ticker.index.to_list())  # Liste triée
+    st.session_state.ticker_list = sorted(df_ticker.index.to_list())  
 
 # Subsettinh the page in 3 columns
 col_header1, col_header2, col_header3 = st.columns([2, 1, 1])
@@ -44,7 +67,7 @@ with col_header3:
         index=st.session_state.ticker_list.index(st.session_state.selected_ticker)
         if 'selected_ticker' in st.session_state else 0
     )
-    # Removed the automatic update of session state here
+    
 
 with col_header2:
     st.markdown(
@@ -91,7 +114,7 @@ if st.session_state.stock_data is not None:
     stock_data = st.session_state.stock_data
 
     # Create tabs
-    tabs = st.tabs(["Summary", "Chart", "Financial", "Monte Carlo", "Analysis"])
+    tabs = st.tabs(["Summary", "Chart", "Financials", "Simulation", "Analysis"])
 
     # Menu Page
     with tabs[0]:
@@ -113,10 +136,10 @@ if st.session_state.stock_data is not None:
                 st.write(f"**Major Shareholders** : {stock_data.info.get('majorHoldersBreakdown', 'N/A')}")
 
             with col2:
-                st.markdown("<hr>", unsafe_allow_html=True)                     #Adding Bar and space to get a good layout
+                st.markdown("<hr>", unsafe_allow_html=True)                     
                 st.markdown("<br>", unsafe_allow_html=True)
                 st.markdown("<br>", unsafe_allow_html=True)
-                st.write(f"**Market Cap** : {stock_data.info.get('marketCap', 'N/A'):,} USD")                                                           #Adding Each information from yahoo finance in the right column
+                st.write(f"**Market Cap** : {stock_data.info.get('marketCap', 'N/A'):,} USD")   #Adding Each information from yahoo finance in the right column
                 st.write(f"**PE Ratio (TTM)** : {stock_data.info.get('trailingPE', 'N/A')}")
                 st.write(f"**EPS (TTM)** : {stock_data.info.get('trailingEps', 'N/A')}")
                 st.write(f"**Dividend** : {stock_data.info.get('dividendYield', 'N/A')}")
@@ -126,7 +149,7 @@ if st.session_state.stock_data is not None:
                 st.write(f"**Company Profile** : {stock_data.info.get('industry', 'N/A')} - {stock_data.info.get('sector', 'N/A')}")
 
         with col_chart:                 #2nd column of the menu page : Selectbox and chart 
-                    period = st.selectbox("Select the period :", ['1M', '3M', '6M', 'YTD', '1Y', '3Y', '5Y', 'MAX'], key = 'key_one')        #Differents period availables
+                    period = st.selectbox("Select the period :", ['1M', '3M', '6M', 'YTD', '1Y', '3Y', '5Y', 'MAX'], key = 'key_one')   #Differents period availables
                     period_dict = {             #Dictionnary to match with '.history' function of yahoo finance afterwards
                         '1M': '1mo',
                         '3M': '3mo',
@@ -137,9 +160,10 @@ if st.session_state.stock_data is not None:
                         '5Y': '5y',
                         'MAX': 'max'
                     }
+                    
                     yf_period = period_dict.get(period, '1d')
                     hist = stock_data.history(period=yf_period)         #downloding the necessary data
-                    fig = go.Figure(data=[go.Scatter(x=hist.index, y=hist['Close'], mode='lines', name='Close')])       #Displaying the chart       
+                    fig = go.Figure(data=[go.Scatter(x=hist.index, y=hist['Close'], mode='lines', fill='tozeroy', line=dict(color='green'), fillcolor='rgba(0, 128, 0, 0.3)', name='Close')])       #Displaying the chart       
                     fig.update_layout(title=f"Price of {st.session_state.selected_ticker} on {period}", xaxis_title="Date", yaxis_title="Prix (USD)")
                     st.plotly_chart(fig, use_container_width=True)
 
@@ -149,7 +173,7 @@ if st.session_state.stock_data is not None:
 
     # Tab 2: Chart
     with tabs[1]:
-        st.markdown("<hr>", unsafe_allow_html=True)
+        #st.markdown("<hr>", unsafe_allow_html=True)
         st.subheader("Chart of Stock Price")
 
         # Divide the page into three columns for period, start date, and end date
@@ -249,31 +273,69 @@ if st.session_state.stock_data is not None:
 
 
     # Tab 3: Financials
+    # Tab 3: Financials
     with tabs[2]:
-        st.header("Financials")
-        st.markdown("<hr>", unsafe_allow_html=True)
+        #st.header("Financials")
+        #st.markdown("<hr>", unsafe_allow_html=True)
 
-        # Dropdowns for selecting financial type and period
-        financial_type = st.selectbox("Select Financial Type", ["Income Statement", "Balance Sheet", "Cash Flow"])
-        period_type = st.selectbox("Select Period", ["Annual", "Quarterly"])
+        # Main tabs for Income Statement, Balance Sheet, and Cash Flow
+        financial_tabs = st.tabs(["Income Statement", "Balance Sheet", "Cash Flow"])
 
-        # Mapping financial type and period to the appropriate data
-        if financial_type == "Income Statement":
-            financials = stock_data.financials if period_type == "Annual" else stock_data.quarterly_financials
-        elif financial_type == "Balance Sheet":
-            financials = stock_data.balance_sheet if period_type == "Annual" else stock_data.quarterly_balance_sheet
-        elif financial_type == "Cash Flow":
-            financials = stock_data.cashflow if period_type == "Annual" else stock_data.quarterly_cashflow
-        else:
-            financials = None
+        # Income Statement Tab
+        with financial_tabs[0]:
+            st.subheader("Income Statement")
+            period_tabs = st.tabs(["Annual", "Quarterly"])
 
-        # Displaying the selected data
-        st.subheader(f"{financial_type} - {period_type}")
-        st.dataframe(financials if financials is not None else "No data available")
+            # Annual Income Statement
+            with period_tabs[0]:
+                st.subheader("Income Statement - Annual")
+                financials = stock_data.financials
+                st.dataframe(financials if financials is not None else "No data available")
+
+            # Quarterly Income Statement
+            with period_tabs[1]:
+                st.subheader("Income Statement - Quarterly")
+                financials = stock_data.quarterly_financials
+                st.dataframe(financials if financials is not None else "No data available")
+
+        # Balance Sheet Tab
+        with financial_tabs[1]:
+            st.subheader("Balance Sheet")
+            period_tabs = st.tabs(["Annual", "Quarterly"])
+
+            # Annual Balance Sheet
+            with period_tabs[0]:
+                st.subheader("Balance Sheet - Annual")
+                financials = stock_data.balance_sheet
+                st.dataframe(financials if financials is not None else "No data available")
+
+            # Quarterly Balance Sheet
+            with period_tabs[1]:
+                st.subheader("Balance Sheet - Quarterly")
+                financials = stock_data.quarterly_balance_sheet
+                st.dataframe(financials if financials is not None else "No data available")
+
+        # Cash Flow Tab
+        with financial_tabs[2]:
+            st.subheader("Cash Flow")
+            period_tabs = st.tabs(["Annual", "Quarterly"])
+
+            # Annual Cash Flow
+            with period_tabs[0]:
+                st.subheader("Cash Flow - Annual")
+                financials = stock_data.cashflow
+                st.dataframe(financials if financials is not None else "No data available")
+
+            # Quarterly Cash Flow
+            with period_tabs[1]:
+                st.subheader("Cash Flow - Quarterly")
+                financials = stock_data.quarterly_cashflow
+                st.dataframe(financials if financials is not None else "No data available")
+
 
  # Page Monte Carlo Simulation
     with tabs[3]:
-        st.markdown("<hr>", unsafe_allow_html=True)
+        #st.markdown("<hr>", unsafe_allow_html=True)
 
         # Options selection
         col_simulations, col_days, col_startprice, col_var = st.columns([1, 1, 1, 1])  # Dividing into 4 columns
@@ -389,9 +451,9 @@ if st.session_state.stock_data is not None:
 
     # Comparison Page
     with tabs[4]:    
-        col_title, col_selectbox = st.columns([1, 1])               # Dividing the page in two columns
+        col_title, col_selectbox = st.columns([1, 1])              
 
-        with col_selectbox:                                         # 2nd SelectBox for comparison
+        with col_selectbox:                                        
             selected_ticker_2 = st.selectbox(
                 "Select a stock to compare",
                 st.session_state.ticker_list,
@@ -404,7 +466,7 @@ if st.session_state.stock_data is not None:
 
         # Period Initialisation
         if 'comparison_period' not in st.session_state:
-            st.session_state.comparison_period = '1y'               # Défault Value
+            st.session_state.comparison_period = '1y'               
         st.markdown("<hr>", unsafe_allow_html=True)
 
 
@@ -435,7 +497,7 @@ if st.session_state.stock_data is not None:
             if st.button("MAX"):
                 st.session_state.comparison_period = 'max'
 
-        # Getting the data thorugh 'history' function with yahoo finance from stock_data variables
+        # Getting the data thorugh 'history' function with yahoo finance from stock_data 
         stock_data = yf.Ticker(st.session_state.selected_ticker)
         data_1 = stock_data.history(period=st.session_state.comparison_period)
         data_2 = stock_data_2.history(period=st.session_state.comparison_period)
@@ -474,8 +536,8 @@ if st.session_state.stock_data is not None:
         eps_2 = stock_data_2.info.get('trailingEps', 'N/A')
 
         # Dividend Yield
-        divident_yield_1 = stock_data.info.get('dividendYield', 'N/A')
-        divident_yield_2 = stock_data_2.info.get('dividendYield', 'N/A')
+        dividend_yield_1 = stock_data.info.get('dividendYield', 'N/A')
+        dividend_yield_2 = stock_data_2.info.get('dividendYield', 'N/A')
 
         # Comparison Line Chart
         fig = go.Figure()
@@ -486,7 +548,7 @@ if st.session_state.stock_data is not None:
             y=data_1['Close'], 
             mode='lines', 
             name=f"{st.session_state.selected_ticker} Close",
-            line=dict(color='blue')  # Line color set to black
+            line=dict(color='blue') 
         ))
 
         # Second trace in grey
@@ -495,7 +557,7 @@ if st.session_state.stock_data is not None:
             y=data_2['Close'], 
             mode='lines', 
             name=f"{selected_ticker_2} Close",
-            line=dict(color='grey')  # Line color set to grey
+            line=dict(color='grey')  
         ))
 
         # Graph layout
@@ -504,7 +566,7 @@ if st.session_state.stock_data is not None:
             xaxis_title="Date",
             yaxis_title="Price (USD)",
             height=700,
-            template="plotly_white"  # Optional: Use a white background template for contrast
+            template="plotly_white"  
         )
 
         # Display the chart
@@ -516,36 +578,36 @@ if st.session_state.stock_data is not None:
         st.markdown("### Key Statistics")
         comparison_data = {
         "Metric": [
-            "📊 Average Return (%)",
-            "📉 Volatility (%)",
-            "💸 Market Cap",
-            "📈 Beta",
-            "📏 Sharpe Ratio",
-            "🧮 PE Ratio",
-            "💵 EPS (TTM)",
-            "💰 Dividend Yield"
+            "Average Return (%)",
+            "Volatility (%)",
+            "Market Cap",
+            "Beta",
+            "Sharpe Ratio",
+            "PE Ratio",
+            "EPS (TTM)",
+            "Dividend Yield"
         ],
         
         f"{st.session_state.selected_ticker}": [
-        f"{mean_return_1:.2f}%",  # Average Return for stock 1
-        f"{volatility_1:.2f}%",  # Volatility for stock 1
-        f"{market_cap_1:.2f}%",  # market cap for stock 1
-        f"{beta_1:.2f}",          # Beta for stock 1
-        f"{sharpe_ratio_1:.2f}",   # Sharpe Ratio for stock 1
-        f"{pe_ratio_1:.2f}",   # Sharpe Ratio for stock 2
-        f"{eps_1:.2f}",   # eps for stock 1
-        f"{divident_yield_1:.2f}"   # divident for stock 2
+        f"{mean_return_1:.2f}%", 
+        f"{volatility_1:.2f}%",  
+        f"{market_cap_1:.2f}%",  
+        f"{beta_1:.2f}",          
+        f"{sharpe_ratio_1:.2f}",   
+        f"{pe_ratio_1:.2f}",   
+        f"{eps_1:.2f}",   
+        f"{dividend_yield_1:.2f}"   
         
         ],
         f"{selected_ticker_2}": [
-        f"{mean_return_2:.2f}%",  # Average Return for stock 2
-        f"{volatility_2:.2f}%",  # Volatility for stock 2
-        f"{market_cap_2:.2f}%",  # market cap for stock 1
-        f"{beta_2:.2f}",          # Beta for stock 2
-        f"{sharpe_ratio_2:.2f}",   # Sharpe Ratio for stock 2
-        f"{pe_ratio_2:.2f}",   # Sharpe Ratio for stock 2
-        f"{eps_2:.2f}",   # eps for stock 1
-        f"{divident_yield_2:.2f}"   # divident for stock 2
+        f"{mean_return_2:.2f}%",  
+        f"{volatility_2:.2f}%",  
+        f"{market_cap_2:.2f}%",  
+        f"{beta_2:.2f}",          
+        f"{sharpe_ratio_2:.2f}",   
+        f"{pe_ratio_2:.2f}",   
+        f"{eps_2:.2f}",   
+        f"{dividend_yield_2:.2f}"   
          ]
         }
         # Create a DataFrame
